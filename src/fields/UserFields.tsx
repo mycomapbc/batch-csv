@@ -14,7 +14,7 @@ interface UserFieldsProps {
 }
 
 export const UserFields: FC<UserFieldsProps> = ({ onSubmit, disabled }) => {
-  const [username, setUsername] = React.useState<string>('benkeen');
+  const [username, setUsername] = React.useState<string>('');
   const [fromDate, setFromDate] = React.useState<Dayjs | null>(null);
   const [toDate, setToDate] = React.useState<Dayjs | null>(null);
 
