@@ -8,6 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
 export const InvalidEntries = ({
+  emptyVoucherEntries,
   invalidVouchers,
   obsWithDuplicateVoucherNums,
 }: any) => {
@@ -19,6 +20,13 @@ export const InvalidEntries = ({
         problems have been resolved, do a fresh search to be able to download
         your CSV file.
       </div>
+      <p>
+        <b style={{ color: '#aa0000' }}>
+          Please note that after fixing these issues on iNaturalist, it may take
+          5-10 minutes for them to disappear from this list.
+        </b>
+      </p>
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -35,6 +43,22 @@ export const InvalidEntries = ({
             </TableRow>
           </TableHead>
           <TableBody>
+            {emptyVoucherEntries.length > 0 &&
+              emptyVoucherEntries.map((row: any) => (
+                <TableRow key={row.id}>
+                  <TableCell>{row.voucherNumber}</TableCell>
+                  <TableCell>
+                    <a
+                      href={`https://www.inaturalist.org/observations/${row.id}`}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                    >
+                      {row.id}
+                    </a>
+                  </TableCell>
+                  <TableCell>Missing voucher number</TableCell>
+                </TableRow>
+              ))}
             {invalidVouchers.length > 0 &&
               invalidVouchers.map((row: any) => (
                 <TableRow key={row.id}>

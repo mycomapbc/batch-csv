@@ -1,9 +1,21 @@
 export const downloadCSV = (data: any[]) => {
-  const headers = ['iNat Number', 'Observed On', 'User Name', 'Voucher Number'];
+  const headers = [
+    'Voucher Number',
+    'iNat Number',
+    'User Name',
+    'Observed On',
+    'Link to iNat',
+  ];
   const csvRows = [headers.join(',')];
 
   data.forEach((row) => {
-    const values = [row.id, row.observedOn, row.user, row.voucherNumber];
+    const values = [
+      row.voucherNumber,
+      row.id,
+      row.user,
+      row.observedOn,
+      `https://www.inaturalist.org/observations/${row.id}`,
+    ];
     csvRows.push(values.map((v) => `"${v}"`).join(','));
   });
 
@@ -25,6 +37,7 @@ export const isValidVoucherNumber = (val: string) => {
 };
 
 export type InvalidData = {
+  emptyVoucherEntries: any[];
   invalidVouchers: any[];
   obsWithDuplicateVoucherNums: any[];
   hasErrors: boolean;
@@ -34,19 +47,29 @@ export const findInvalidVoucherEntries = (
   data: any[],
   voucherNumFormatCheck: boolean
 ): InvalidData => {
+  const emptyVoucherEntries = data.filter((entry) => {
+    return !entry.voucherNumber || entry.voucherNumber.trim() === '';
+  });
+
   // first check for invalid voucher number
-  const invalidVouchers = voucherNumFormatCheck
-    ? data.filter((entry) => {
-        const voucherNumber = entry.voucherNumber;
-
-        // voucher number is invalid format
-        if (!isValidVoucherNumber(voucherNumber)) {
-          return true;
-        }
-
+  let invalidVouchers = [];
+  if (voucherNumFormatCheck) {
+    invalidVouchers = data.filter((entry) => {
+      // remove any that are empty - those are caught above
+      if (!entry.voucherNumber || entry.voucherNumber.trim() === '') {
         return false;
-      })
-    : [];
+      }
+
+      const voucherNumber = entry.voucherNumber;
+
+      // voucher number is invalid format
+      if (!isValidVoucherNumber(voucherNumber)) {
+        return true;
+      }
+
+      return false;
+    });
+  }
 
   // next, check for duplicates in the current data set. Sadly, this isn't exhaustive: the only way to check
   // against all existing voucher numbers is to query iNat for each one sequentially. And with the 1 second limitation
@@ -55,6 +78,15 @@ export const findInvalidVoucherEntries = (
   const seenVouchers: Record<string, boolean> = {};
 
   data.forEach((entry) => {
+    // remove any that are empty or invalid - those are caught above
+    if (
+      !entry.voucherNumber ||
+      entry.voucherNumber.trim() === '' ||
+      (voucherNumFormatCheck && !isValidVoucherNumber(entry.voucherNumber))
+    ) {
+      return;
+    }
+
     const voucherNumber = entry.voucherNumber;
     if (seenVouchers[voucherNumber]) {
       obsWithDuplicateVoucherNums.push(entry);
@@ -75,6 +107,7 @@ export const findInvalidVoucherEntries = (
   });
 
   return {
+    emptyVoucherEntries,
     invalidVouchers,
     obsWithDuplicateVoucherNums,
     hasErrors:

@@ -7,6 +7,11 @@ import type { InvalidData } from '../utils/data';
 import { InvalidEntries } from '../dataTable/InvalidEntries';
 import { CircularProgress } from '@mui/material';
 import qs from 'query-string';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 export const App = () => {
   const [data, setData] = React.useState([]);
@@ -14,6 +19,7 @@ export const App = () => {
   const [voucherNumFormatCheck, setVoucherNumFormatCheck] =
     React.useState<boolean>(true);
   const [invalidData, setInvalidData] = React.useState<InvalidData>({
+    emptyVoucherEntries: [],
     invalidVouchers: [],
     obsWithDuplicateVoucherNums: [],
     hasErrors: false,
@@ -68,6 +74,7 @@ export const App = () => {
     }
     return (
       <InvalidEntries
+        emptyVoucherEntries={invalidData.emptyVoucherEntries}
         invalidVouchers={invalidData.invalidVouchers}
         obsWithDuplicateVoucherNums={invalidData.obsWithDuplicateVoucherNums}
       />
@@ -108,19 +115,48 @@ export const App = () => {
   };
 
   return (
-    <div>
-      <h1>Mycomap Batch Data</h1>
+    <>
+      <AppBar position='static'>
+        <Toolbar>
+          <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
+            <a
+              href='https://mycota.com/the-mycomap-bc-network/'
+              style={{ color: 'inherit', textDecoration: 'none' }}
+            >
+              MycoMap BC
+            </a>
+          </Typography>
 
-      <p>
-        This script generates a downloadable CSV file of your iNat BC MycoMap
-        observations. This will locate all your fungi and slime mould
-        observations <i>already tagged with the BC MycoMap project</i> on
-        iNaturalist.
-      </p>
+          <IconButton
+            size='large'
+            edge='start'
+            color='inherit'
+            aria-label='menu'
+            sx={{ mr: 2 }}
+            href='https://github.com/mycomapbc/batch-csv'
+          >
+            <GitHubIcon />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
 
-      <UserFields onSubmit={handleRequestData} disabled={loading} />
+      <div style={{ margin: '0 auto', maxWidth: '1000px' }}>
+        <h1>Batch Observations</h1>
 
-      {getPageContent()}
-    </div>
+        <p>
+          This script creates a downloadable CSV of your BC MycoMap
+          observations. It gathers all fungi and slime mould records you've
+          tagged with the{' '}
+          <a href='https://www.inaturalist.org/projects/mycomap-bc-a-dna-sequencing-project'>
+            MycoMap BC project
+          </a>{' '}
+          on iNaturalist, limited to the date range you specify.
+        </p>
+
+        <UserFields onSubmit={handleRequestData} disabled={loading} />
+
+        {getPageContent()}
+      </div>
+    </>
   );
 };

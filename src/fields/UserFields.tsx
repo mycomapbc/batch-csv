@@ -39,7 +39,7 @@ export const UserFields: FC<UserFieldsProps> = ({ onSubmit, disabled }) => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               variant='outlined'
-              sx={{ width: '100%' }}
+              sx={{ width: '100%', backgroundColor: 'white' }}
               disabled={disabled}
             />
           </Grid>
@@ -48,7 +48,7 @@ export const UserFields: FC<UserFieldsProps> = ({ onSubmit, disabled }) => {
               label='From Date'
               value={fromDate}
               onChange={(value) => setFromDate(value)}
-              sx={{ width: '160px' }}
+              sx={{ width: '160px', backgroundColor: 'white' }}
               disabled={disabled}
             />
           </Grid>
@@ -57,7 +57,7 @@ export const UserFields: FC<UserFieldsProps> = ({ onSubmit, disabled }) => {
               label='To Date'
               value={toDate}
               onChange={(value) => setToDate(value)}
-              sx={{ width: '160px' }}
+              sx={{ width: '160px', backgroundColor: 'white' }}
               disabled={disabled}
             />
           </Grid>

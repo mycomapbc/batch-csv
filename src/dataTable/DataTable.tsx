@@ -34,22 +34,23 @@ export const DataTable = ({ data, hasErrors }: DataTableProps) => {
           <TableHead>
             <TableRow>
               <TableCell>
-                <b>iNat Number</b>
+                <b>Voucher Number</b>
               </TableCell>
               <TableCell>
-                <b>Observed On</b>
+                <b>iNat Number</b>
               </TableCell>
               <TableCell>
                 <b>User Name</b>
               </TableCell>
               <TableCell>
-                <b>Voucher Number</b>
+                <b>Observed On</b>
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data.map((row: any) => (
               <TableRow key={row.id}>
+                <TableCell>{row.voucherNumber}</TableCell>
                 <TableCell>
                   <a
                     href={`https://www.inaturalist.org/observations/${row.id}`}
@@ -59,9 +60,8 @@ export const DataTable = ({ data, hasErrors }: DataTableProps) => {
                     {row.id}
                   </a>
                 </TableCell>
-                <TableCell>{row.observedOn}</TableCell>
                 <TableCell>{row.user}</TableCell>
-                <TableCell>{row.voucherNumber}</TableCell>
+                <TableCell>{row.observedOn}</TableCell>
               </TableRow>
             ))}
           </TableBody>
