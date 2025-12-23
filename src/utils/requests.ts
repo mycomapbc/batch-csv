@@ -108,8 +108,6 @@ export const getDataPacket = async (
       .map((ofv: any) => ofv.value)[0],
   }));
 
-  console.log(trimmedData);
-
   // sort them by voucher number, which is of the form BCxx-xxxxx where X is a number, and BC will be followed by the year - 25, 26 etc.
   // so we want BC25-00001 to come before BC26-00001, and BC25-00002 to come after BC25-00001
   trimmedData.sort((a: any, b: any) => {
