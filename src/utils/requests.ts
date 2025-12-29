@@ -55,6 +55,25 @@ export const getObservations = async (
     }
   }
 
+  // sort them by voucher number, which is of the form BCxx-xxxxx where X is a number, and BC will be followed by the year - 25, 26 etc.
+  // so we want BC25-00001 to come before BC26-00001, and BC25-00002 to come after BC25-00001
+  results.sort((a: any, b: any) => {
+    const [aYear, aNum] = (a.voucherNumber || '')
+      .replace('BC', '')
+      .split('-')
+      .map((part: string) => parseInt(part, 10));
+
+    const [bYear, bNum] = (b.voucherNumber || '')
+      .replace('BC', '')
+      .split('-')
+      .map((part: string) => parseInt(part, 10));
+
+    if (aYear !== bYear) {
+      return aYear - bYear;
+    }
+    return aNum - bNum;
+  });
+
   return { error: foundError, results };
 };
 
@@ -107,25 +126,6 @@ export const getDataPacket = async (
       .filter((ofv: any) => ofv.name === 'Voucher Number(s)')
       .map((ofv: any) => ofv.value)[0],
   }));
-
-  // sort them by voucher number, which is of the form BCxx-xxxxx where X is a number, and BC will be followed by the year - 25, 26 etc.
-  // so we want BC25-00001 to come before BC26-00001, and BC25-00002 to come after BC25-00001
-  trimmedData.sort((a: any, b: any) => {
-    const [aYear, aNum] = (a.voucherNumber || '')
-      .replace('BC', '')
-      .split('-')
-      .map((part: string) => parseInt(part, 10));
-
-    const [bYear, bNum] = (b.voucherNumber || '')
-      .replace('BC', '')
-      .split('-')
-      .map((part: string) => parseInt(part, 10));
-
-    if (aYear !== bYear) {
-      return aYear - bYear;
-    }
-    return aNum - bNum;
-  });
 
   return {
     totalResults: rawData.total_results,
