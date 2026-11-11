@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { UserFields } from '../fields/UserFields';
-import { getObservations } from '../utils/requests';
+import { getObservations, partitionObservations } from '../utils/requests';
 import type { ObservationData } from '../utils/requests';
 import { DataTable } from '../dataTable/DataTable';
 import { findInvalidVoucherEntries } from '../utils/data';
@@ -14,9 +14,12 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import Alert from '@mui/material/Alert';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 
 export const App = () => {
   const [data, setData] = React.useState<ObservationData[]>([]);
+  const [outsideProjectData, setOutsideProjectData] = React.useState<ObservationData[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
   const [voucherNumFormatCheck, setVoucherNumFormatCheck] =
@@ -28,6 +31,7 @@ export const App = () => {
     hasErrors: false,
   });
   const [hasMadeSearch, setHasMadeSearch] = React.useState<boolean>(false);
+  const [resultsTab, setResultsTab] = React.useState<number>(0);
   const [searchData, setSearchData] = React.useState({
     username: '',
     fromDate: null,
@@ -46,15 +50,17 @@ export const App = () => {
       const { error, results } = await getObservations(
         username,
         fromDate!,
-        toDate!
+        toDate!,
       );
 
       if (error) {
         setError(error);
       }
 
-      setInvalidData(findInvalidVoucherEntries(results, voucherNumFormatCheck));
-      setData(results);
+      const { projectObservations, outsideProjectObservations } = partitionObservations(results);
+      setInvalidData(findInvalidVoucherEntries(projectObservations, voucherNumFormatCheck));
+      setData(projectObservations);
+      setOutsideProjectData(outsideProjectObservations);
       setLoading(false);
       setHasMadeSearch(true);
     })();
@@ -69,6 +75,7 @@ export const App = () => {
   }, []);
 
   const handleRequestData = ({ username, fromDate, toDate }: any) => {
+    setResultsTab(0);
     setSearchData({ username, fromDate, toDate });
   };
 
@@ -118,14 +125,51 @@ export const App = () => {
       );
     }
 
-    if (data.length === 0) {
-      return <p>No observations found.</p>;
-    }
-
     return (
       <div style={{ marginTop: 30 }}>
-        {getInvalidDataTable()}
-        <DataTable data={data} hasErrors={invalidData.hasErrors} />
+        <Tabs
+          value={resultsTab}
+          onChange={(_event, value: number) => setResultsTab(value)}
+          aria-label='Observation results'
+        >
+          <Tab
+            label='In MycoMap'
+            id='mycomap-observations-tab'
+            aria-controls='mycomap-observations-panel'
+          />
+          <Tab
+            label='Not in MycoMap'
+            id='without-mycomap-project-tab'
+            aria-controls='without-mycomap-project-panel'
+          />
+        </Tabs>
+        <div
+          role='tabpanel'
+          id='mycomap-observations-panel'
+          aria-labelledby='mycomap-observations-tab'
+          hidden={resultsTab !== 0}
+        >
+          {data.length === 0 ? (
+            <p>No observations found.</p>
+          ) : (
+            <>
+              {getInvalidDataTable()}
+              <DataTable data={data} hasErrors={invalidData.hasErrors} showValidateImages />
+            </>
+          )}
+        </div>
+        <div
+          role='tabpanel'
+          id='without-mycomap-project-panel'
+          aria-labelledby='without-mycomap-project-tab'
+          hidden={resultsTab !== 1}
+        >
+          {outsideProjectData.length === 0 ? (
+            <p>No observations found outside the MycoMap project.</p>
+          ) : (
+            <DataTable data={outsideProjectData} hasErrors={false} allowDownload={false} firstColumn='species' />
+          )}
+        </div>
       </div>
     );
   };
@@ -168,64 +212,17 @@ export const App = () => {
             MycoMap BC
           </a>{' '}
           observations. This will locate all your fungi and slime mould
-          observations{' '}
-          <i>
-            already added to the{' '}
-            <a
-              href='https://www.inaturalist.org/observations?project_id=250590'
-              target='_blank'
-              rel='noreferrer'
-            >
-              MycoMap BC project
-            </a>
-          </i>{' '}
-          on iNaturalist.
-        </p>
-        <p>
-          Please choose dates that will capture all the collections being sent
-          in an individual shipment.
-        </p>
-        <p>
-          After you generate and download your CSV file, please upload it when
-          filling out the{' '}
+          observations on iNaturalist within your chosen observed-date range,
+          grouped by whether they are in the{' '}
           <a
-            href='https://docs.google.com/forms/d/e/1FAIpQLSchGgJWGMvG56rE5xaub8UX6fiYS4rIOkh86YLZuZ4nRGK3Vg/viewform?usp=dialog'
+            href='https://www.inaturalist.org/observations?project_id=250590'
             target='_blank'
             rel='noreferrer'
           >
-            google form for project submissions
+            MycoMap BC project
           </a>
-          . You will see an option to upload at the bottom of the form.
+          . Only project observations are validated and included in the CSV.
         </p>
-        <p>
-          Completing this process allows you to check the accuracy of the
-          voucher numbers on your observations and saves the MycoMap BC team the
-          time spent entering your numbers by hand. Thank you!
-        </p>
-        <p>
-          Please repeat both the google form and CSV generation process for each
-          separate shipment you send.
-        </p>
-        <p></p>
-        Additional notes:
-        <ul>
-          <li>
-            If your shipment involves collections from multiple collectors, each
-            collector should generate a separate CSV, and separately fill out
-            the google form linked above.
-          </li>
-          <li>
-            The same applies for specimens dropped off or handed off in person,
-            please generate a CSV and complete the google form.
-          </li>
-          <li>
-            Please contact Elora at{' '}
-            <a href='mailto:eloraadamson@uvic.ca' target='_blank'>
-              eloraadamson@uvic.ca
-            </a>{' '}
-            if you have any questions or issues with the process. Thank you!
-          </li>
-        </ul>
         <UserFields onSubmit={handleRequestData} disabled={loading} />
         {getPageContent()}
       </div>

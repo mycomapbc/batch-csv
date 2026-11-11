@@ -8,7 +8,7 @@
   "scripts": {
     "build": "npm run webpackProd",
     "start": "npm run webpackDev",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsc --project tsconfig.test.json && node --test tests/*.test.cjs",
     "webpackDev": "webpack serve --config ./webpack.config.js --mode=development",
     "webpackProd": "webpack --config ./webpack.config.js --mode=production",
     "update-gh-pages": "npm run build && node build/gh-pages.js"
@@ -36,6 +36,7 @@
     "read-excel-file": "^6.0.1",
     "stream-http": "^3.2.0",
     "throttled-queue": "^3.0.0",
+    "tesseract.js": "^7.0.0",
     "https-browserify": "^1.0.0",
     "browserify-zlib": "^0.2.0"
   },

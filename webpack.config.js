@@ -11,6 +11,7 @@ module.exports = (env, argv) => {
 
     entry: {
       app: path.resolve(__dirname, 'src/index.tsx'),
+      'ocr-poc': path.resolve(__dirname, 'src/ocr/poc.tsx'),
     },
 
     output: {
@@ -64,6 +65,12 @@ module.exports = (env, argv) => {
     plugins: [
       new HtmlWebpackPlugin({
         template: path.join(__dirname, 'src/index.html'),
+        chunks: ['app'],
+      }),
+      new HtmlWebpackPlugin({
+        filename: 'ocr-poc.html',
+        template: path.join(__dirname, 'src/ocr/poc.html'),
+        chunks: ['ocr-poc'],
       }),
     ],
 
