@@ -133,12 +133,12 @@ export const App = () => {
           aria-label='Observation results'
         >
           <Tab
-            label='In MycoMap'
+            label={`In MycoMap (${data.length})`}
             id='mycomap-observations-tab'
             aria-controls='mycomap-observations-panel'
           />
           <Tab
-            label='Not in MycoMap'
+            label={`Not in MycoMap (${outsideProjectData.length})`}
             id='without-mycomap-project-tab'
             aria-controls='without-mycomap-project-panel'
           />
